@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -24,7 +25,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
 
   bool textScanning = false;
-  XFile? imageFile;
+  File? imageFile;
   String scannedText = "";
 
   @override
@@ -148,7 +149,7 @@ class _HomeState extends State<Home> {
                       ),),
                     SizedBox(height: 25),
                     Text(
-                      scannedText,
+                      scannedText != "" ? scannedText : "Scan image to display ingridients." ,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.normal,
@@ -180,9 +181,8 @@ class _HomeState extends State<Home> {
       final pickedImage = await _picker.pickImage(source: source);
       if(pickedImage != null) {
         textScanning = true;
-        imageFile = pickedImage;
-        setState(() {});
-        getRecognizedText(pickedImage);
+        File image = File(pickedImage.path);
+        cropImage(image.path);
       }
       else {
         // inform error
@@ -198,9 +198,22 @@ class _HomeState extends State<Home> {
 
   }
 
-  void getRecognizedText(XFile image) async {
+  void cropImage(filePath) async {
 
-    final inputImage = InputImage.fromFilePath(image.path);
+    File? croppedImage = await ImageCropper().cropImage(
+      sourcePath: filePath,
+    );
+
+    if(croppedImage != null) {
+      imageFile = croppedImage;
+      setState(() {});
+      getRecognizedText(croppedImage);
+    }
+  }
+
+  void getRecognizedText(File? image) async {
+
+    final inputImage = InputImage.fromFilePath(image!.path);
     final textDetector = GoogleMlKit.vision.textRecognizer();
     RecognizedText recognizedText = await textDetector.processImage(inputImage);
     await textDetector.close();
@@ -211,6 +224,7 @@ class _HomeState extends State<Home> {
       for( TextLine line in block.lines) {
         scannedText = scannedText + line.text + "\n";
       }
+      scannedText = scannedText + "\n";
     }
 
     textScanning = false;
