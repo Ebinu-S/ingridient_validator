@@ -5,6 +5,7 @@ import 'dart:developer'; // delete on production
 import 'package:project_ing_validator/services/analyzeImage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:project_ing_validator/services/auth.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -14,6 +15,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  final AuthService _auth = AuthService();
 
   bool textScanning = false;
   File? imageFile;
@@ -26,6 +29,18 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text("Ingridient's validator"),
         backgroundColor: Color(0xff533E85),
+        actions: <Widget>[
+          ElevatedButton.icon(
+              onPressed: () async{
+                await _auth.signOut();
+              },
+              icon: Icon(Icons.person),
+              label: Text("Log out"),
+            style: ElevatedButton.styleFrom(
+              primary: Colors.transparent,
+              elevation: 0.0
+            )
+          )],
       ),
       body: SingleChildScrollView(
           child: Container(
@@ -152,16 +167,6 @@ class _HomeState extends State<Home> {
             ),
           )
       ),
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        child: Container(height: 50.0),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        tooltip: 'Analyze',
-        child: Icon(Icons.analytics),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
