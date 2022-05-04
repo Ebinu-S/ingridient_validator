@@ -1,9 +1,10 @@
 import 'dart:io';
 
+import 'dart:developer'; // delete on production
+
+import 'services/analyzeImage.dart';
 import 'package:flutter/material.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_cropper/image_cropper.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -175,62 +176,30 @@ class _HomeState extends State<Home> {
   }
 
   void getImage(ImageSource source) async {
-    try{
 
-      final ImagePicker _picker = ImagePicker();
-      final pickedImage = await _picker.pickImage(source: source);
-      if(pickedImage != null) {
-        textScanning = true;
-        File image = File(pickedImage.path);
-        cropImage(image.path);
-      }
-      else {
-        // inform error
-        print("error");
+    textScanning = true;
+
+    await PickImage(source).then((res)
+      {
+        if(res['success'] == true) {
+          scannedText = res['message'];
+          imageFile = res['image'];
+          print( " image file path");
+          print(imageFile?.path);
+          textScanning = false;
+          setState(() {});
+        }
+        else {
+          print("Error");
       }
     }
-    catch (e) {
-      textScanning = false;
-      imageFile = null;
-      scannedText = "Error";
-      setState(() {});
-    }
-
-  }
-
-  void cropImage(filePath) async {
-
-    File? croppedImage = await ImageCropper().cropImage(
-      sourcePath: filePath,
     );
 
-    if(croppedImage != null) {
-      imageFile = croppedImage;
-      setState(() {});
-      getRecognizedText(croppedImage);
-    }
+    print("goback");
+    // print(result);
+    // scannedText = result.data;
+
   }
-
-  void getRecognizedText(File? image) async {
-
-    final inputImage = InputImage.fromFilePath(image!.path);
-    final textDetector = GoogleMlKit.vision.textRecognizer();
-    RecognizedText recognizedText = await textDetector.processImage(inputImage);
-    await textDetector.close();
-
-    scannedText = "";
-
-    for( TextBlock block in recognizedText.blocks) {
-      for( TextLine line in block.lines) {
-        scannedText = scannedText + line.text + "\n";
-      }
-      scannedText = scannedText + "\n";
-    }
-
-    textScanning = false;
-    setState(() {});
-  }
-
 }
 
 
