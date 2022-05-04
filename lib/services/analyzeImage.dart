@@ -18,9 +18,7 @@ Future<Map> PickImage(ImageSource source ) async {
     if(pickedImage != null) {
       File image = File(pickedImage.path);
       await cropImage(image.path).then((value) {
-        // print("indisde fun");
-        // print(imageFile);
-        // print(imageFile?.path);
+
         result = {
           'success' : true,
           'message' : value!['text'],
@@ -63,7 +61,7 @@ Future<Map?> cropImage(filePath) async {
 
   if(croppedImage != null) {
     imageFile = croppedImage;
-    String text = await getRecognizedText(croppedImage);
+    List text = await getRecognizedText(croppedImage);
     return {
       'text': text ,
       'image' : imageFile
@@ -71,24 +69,19 @@ Future<Map?> cropImage(filePath) async {
   }
 }
 
-Future<String> getRecognizedText(File? image) async {
+Future<List> getRecognizedText(File? image) async {
 
-  String scannedText= "";
+  var scannedText = <String>[];
 
   final inputImage = InputImage.fromFilePath(image!.path);
   final textDetector = GoogleMlKit.vision.textRecognizer();
   RecognizedText recognizedText = await textDetector.processImage(inputImage);
   await textDetector.close();
 
-  scannedText = "";
-
   for( TextBlock block in recognizedText.blocks) {
     for( TextLine line in block.lines) {
-      scannedText = scannedText + line.text + "\n";
+      scannedText.add(line.text);
     }
-
-    scannedText = scannedText + "\n";
   }
-  log('from fun \n' + scannedText);
   return scannedText;
 }
