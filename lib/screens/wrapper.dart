@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:project_ing_validator/screens/home/home.dart';
 import 'package:project_ing_validator/screens/authenticate/authenticate.dart';
 import 'package:project_ing_validator/models/user.dart';
+import 'package:project_ing_validator/screens/initialScreens/selectAllergies.dart';
 import 'package:provider/provider.dart';
 
 class Wrapper extends StatelessWidget {
@@ -11,6 +12,7 @@ class Wrapper extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final user = Provider.of<AppUser?>(context);
+    bool newUser = true;
 
     if(user == null) {
       return Authenticate();

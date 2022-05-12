@@ -2,17 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_ing_validator/services/auth.dart';
 
-class SignIn extends StatefulWidget {
-
+class SignUp extends StatefulWidget {
   final Function toggleView;
-
-  const SignIn({required this.toggleView});
+  const SignUp({required this.toggleView});
 
   @override
-  State<SignIn> createState() => _SignInState();
+  State<SignUp> createState() => _SignUpState();
 }
 
-class _SignInState extends State<SignIn> {
+class _SignUpState extends State<SignUp> {
 
   final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
@@ -24,7 +22,7 @@ class _SignInState extends State<SignIn> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Sign In"),
+        title: Text("Sign Up"),
         backgroundColor: Color(0xff533E85),
       ),
       body: Container(
@@ -38,7 +36,7 @@ class _SignInState extends State<SignIn> {
                   children: [
                     SizedBox(height: 50.0),
                     Text(
-                      "Sign in to your account",
+                      "Create an account",
                       style: Theme.of(context).textTheme.headline5,
                     ),
                     SizedBox(height: 30.0),
@@ -70,9 +68,9 @@ class _SignInState extends State<SignIn> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.person_add),
+                      Icon(Icons.login),
                       SizedBox(width: 10,),
-                      Text("Don't have an account"),
+                      Text("Already have an account"),
                     ],
                   ),
                 ),
@@ -88,6 +86,6 @@ class _SignInState extends State<SignIn> {
           ),
         ),
       ),
-    );
+    );;
   }
 }
