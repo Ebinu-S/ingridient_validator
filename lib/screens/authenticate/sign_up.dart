@@ -44,11 +44,10 @@ class _SignUpState extends State<SignUp> {
                     ),
                     SizedBox(height: 30.0),
                     TextFormField(
-                      obscureText: true,
                       decoration: InputDecoration(hintText: "Username"),
-                      validator: (val) => val!.length < 6 ? 'Enter a password 6+ chars long' : null,
+                      validator: (val) => val!.isEmpty ? "Enter username" : null,
                       onChanged: (val) {
-                        setState( () => password = val);
+                        setState( () => username = val);
                       },
                     ),
                     SizedBox(height: 30.0),
@@ -82,7 +81,7 @@ class _SignUpState extends State<SignUp> {
                           print("No user, user error");
                         }
                         else {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => SelectAllergies(user: result)));
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => SelectAllergies(user: result, username: username)));
                         }
                       },
                       child: Text("Next"),

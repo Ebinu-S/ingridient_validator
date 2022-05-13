@@ -3,9 +3,11 @@ import 'package:project_ing_validator/models/allergy.dart';
 
 class databaseService {
 
-  Future<void> addAllergiesOfUser(List<AllergyModal> allergies, dynamic user) async {
+  final db = FirebaseFirestore.instance;
+
+  Future<void> addAllergiesOfUser(List<AllergyModal> allergies, dynamic user, dynamic username) async {
     print("inside the add function");
-    final CollectionReference userCollection = FirebaseFirestore.instance.collection("users");
+    // final CollectionReference userCollection = FirebaseFirestore.instance.collection("users");
 
     List onlyAllergyNames = [];
     dynamic data = new Map<String,dynamic>();
@@ -14,13 +16,19 @@ class databaseService {
       onlyAllergyNames.add(element.name);
     });
 
-    data["email"] = user.email;
-    data["allergies"] = onlyAllergyNames;
-    print("this is the data");
-    print(data);
+    try{
+      await db.collection("users").doc(user.uid).set({
+        "email" : user.email,
+        "username" : username,
+        "allergies" : onlyAllergyNames
+      });
+      print("after the collection");
+    }
+    catch (err) {
+      print("Something went wrong while setting data to firestore");
+      print(err.toString());
+    }
 
-    await userCollection.doc(user.uid).set(data).onError((error, stackTrace) => print("error happend db.set $error"));
-    print("after the collection");
   }
 
 }

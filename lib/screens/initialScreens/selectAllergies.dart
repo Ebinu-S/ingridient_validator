@@ -8,8 +8,8 @@ import 'package:project_ing_validator/services/firebaseDB.dart';
 import 'package:project_ing_validator/screens/shared/loading.dart';
 
 class SelectAllergies extends StatefulWidget {
-  final dynamic user;
-  SelectAllergies({required this.user});
+  final dynamic user, username;
+  SelectAllergies({required this.user, this.username});
 
   @override
   State<SelectAllergies> createState() => _SelectAllergiesState();
@@ -70,12 +70,12 @@ class _SelectAllergiesState extends State<SelectAllergies> {
                   setState(() {
                     loading = true;
                   });
-                  await databaseService().addAllergiesOfUser(selectedAllergy, widget.user);
+                  await databaseService().addAllergiesOfUser(selectedAllergy, widget.user, widget.username);
                   print("succesfully updated,user");
                   setState(() {
                     loading = false;
                   });
-                  // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
                 },
                 child: Text("Finish")
             )
