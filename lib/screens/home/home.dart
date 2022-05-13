@@ -6,6 +6,7 @@ import 'package:project_ing_validator/services/analyzeImage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project_ing_validator/services/auth.dart';
+import 'package:project_ing_validator/screens/authenticate/authenticate.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -29,10 +30,12 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text("Ingridient's validator"),
         backgroundColor: Color(0xff533E85),
+        automaticallyImplyLeading: false,
         actions: <Widget>[
           ElevatedButton.icon(
               onPressed: () async{
                 await _auth.signOut();
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Authenticate()));
               },
               icon: Icon(Icons.person),
               label: Text("Log out"),

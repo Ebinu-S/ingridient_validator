@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_ing_validator/services/auth.dart';
+import 'package:project_ing_validator/screens/home/home.dart';
 
 class SignIn extends StatefulWidget {
 
@@ -26,6 +27,7 @@ class _SignInState extends State<SignIn> {
       appBar: AppBar(
         title: Text("Sign In"),
         backgroundColor: Color(0xff533E85),
+        automaticallyImplyLeading: false,
       ),
       body: Container(
         padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
@@ -58,6 +60,13 @@ class _SignInState extends State<SignIn> {
                         setState( () => password = val);
                       },
                     ),
+                    SizedBox(height: 30.0),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
+                      },
+                      child: Text("Sign In"),
+                    )
                   ],
                 ),
               ),

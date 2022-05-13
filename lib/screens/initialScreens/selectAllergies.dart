@@ -6,7 +6,8 @@ import 'package:project_ing_validator/models/allergy.dart';
 import 'package:project_ing_validator/screens/home/home.dart';
 
 class SelectAllergies extends StatefulWidget {
-  const SelectAllergies({Key? key}) : super(key: key);
+  final String uid;
+  SelectAllergies({required this.uid});
 
   @override
   State<SelectAllergies> createState() => _SelectAllergiesState();
@@ -15,6 +16,8 @@ class SelectAllergies extends StatefulWidget {
 class _SelectAllergiesState extends State<SelectAllergies> {
 
   final AuthService _auth = AuthService();
+
+  bool loading = false;
 
   List<AllergyModal> allergy = [
     AllergyModal('Milk', false),
@@ -35,18 +38,7 @@ class _SelectAllergiesState extends State<SelectAllergies> {
       appBar: AppBar(
         title: Text("Select allergies"),
         backgroundColor: Color(0xff533E85),
-        actions: <Widget>[
-          ElevatedButton.icon(
-              onPressed: () async{
-                await _auth.signOut();
-              },
-              icon: Icon(Icons.person),
-              label: Text("Log out"),
-              style: ElevatedButton.styleFrom(
-                  primary: Colors.transparent,
-                  elevation: 0.0
-              )
-          )],
+        automaticallyImplyLeading: false,
       ),
       body: Container(
         padding: EdgeInsets.all(20),
@@ -69,7 +61,9 @@ class _SelectAllergiesState extends State<SelectAllergies> {
             ),
             ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => Home()));
+                  print(selectedAllergy[0].name);
+                  print(widget.uid);
+                  // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
                 },
                 child: Text("Finish")
             )
@@ -81,13 +75,13 @@ class _SelectAllergiesState extends State<SelectAllergies> {
 
   Widget AllergyItem(String? name, bool? isSelected, int index) {
     return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: Colors.green[700],
-        child: Icon(
-          Icons.person_outline_outlined,
-          color: Colors.white,
-        ),
-      ),
+      // leading: CircleAvatar(
+      //   backgroundColor: Colors.green[700],
+      //   child: Icon(
+      //     Icons.e,
+      //     color: Colors.white,
+      //   ),
+      // ),
       title: Text(
         name!,
         style: TextStyle(

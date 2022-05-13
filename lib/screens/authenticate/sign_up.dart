@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_ing_validator/services/auth.dart';
+import 'package:project_ing_validator/screens/initialScreens/selectAllergies.dart';
 
 class SignUp extends StatefulWidget {
   final Function toggleView;
@@ -15,6 +16,7 @@ class _SignUpState extends State<SignUp> {
   final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
 
+  bool loading = false;
   String email = '';
   String password = '';
 
@@ -23,6 +25,7 @@ class _SignUpState extends State<SignUp> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Sign Up"),
+        automaticallyImplyLeading: false,
         backgroundColor: Color(0xff533E85),
       ),
       body: Container(
@@ -56,6 +59,25 @@ class _SignUpState extends State<SignUp> {
                         setState( () => password = val);
                       },
                     ),
+                    SizedBox(height: 30.0),
+                    ElevatedButton(
+                      onPressed: () async {
+                        setState(() {
+                          loading = true;
+                        });
+                        dynamic result = await _auth.SignUpWithEmailAndPassword(email, password);
+                        if(result == null) {
+                          setState(() {
+                            loading = false;
+                          });
+                          print("No user, user error");
+                        }
+                        else {
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => SelectAllergies(uid: result.uid)));
+                        }
+                      },
+                      child: Text("Next"),
+                    )
                   ],
                 ),
               ),
