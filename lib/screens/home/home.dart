@@ -2,11 +2,13 @@ import 'dart:io';
 
 import 'dart:developer'; // delete on production
 
+import 'package:project_ing_validator/screens/settings/settings.dart';
 import 'package:project_ing_validator/services/analyzeImage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project_ing_validator/services/auth.dart';
 import 'package:project_ing_validator/screens/authenticate/authenticate.dart';
+import 'package:project_ing_validator/services/ingredients_extractor.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -34,11 +36,11 @@ class _HomeState extends State<Home> {
         actions: <Widget>[
           ElevatedButton.icon(
               onPressed: () async{
-                await _auth.signOut();
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Authenticate()));
+                // await _auth.signOut();
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Settings()));
               },
-              icon: Icon(Icons.person),
-              label: Text("Log out"),
+              icon: Icon(Icons.settings),
+              label: Text(""),
             style: ElevatedButton.styleFrom(
               primary: Colors.transparent,
               elevation: 0.0
@@ -175,35 +177,28 @@ class _HomeState extends State<Home> {
 
   void getImage(ImageSource source) async {
 
+    final IngredientExtractor ingExtractor = IngredientExtractor();
+
     textScanning = true;
     scannedText = "";
 
     await PickImage(source).then((res)
     {
       if(res['success'] == true) {
+        List<String> result = ingExtractor.extractTheIngredients(res['message']);
 
-        // temp code
-        // log(res['message']);
-        res['message'].forEach((txt) {
-          scannedText += txt + "\n\n\n";
+        result.asMap().forEach((index,element, ) {
+          scannedText += "${index+1}: " + element + "\n\n";
         });
-        // end of temp code
 
-        // scannedText = res['message'];
         imageFile = res['image'];
         textScanning = false;
         setState(() {});
-        log(scannedText);
       }
       else {
         print("Error");
       }
     }
     );
-
-    print("goback");
-    // print(result);
-    // scannedText = result.data;
-
   }
 }

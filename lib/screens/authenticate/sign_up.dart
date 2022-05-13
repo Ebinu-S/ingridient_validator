@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_ing_validator/services/auth.dart';
 import 'package:project_ing_validator/screens/initialScreens/selectAllergies.dart';
@@ -19,6 +18,7 @@ class _SignUpState extends State<SignUp> {
   bool loading = false;
   String email = '';
   String password = '';
+  String username = '';
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +41,15 @@ class _SignUpState extends State<SignUp> {
                     Text(
                       "Create an account",
                       style: Theme.of(context).textTheme.headline5,
+                    ),
+                    SizedBox(height: 30.0),
+                    TextFormField(
+                      obscureText: true,
+                      decoration: InputDecoration(hintText: "Username"),
+                      validator: (val) => val!.length < 6 ? 'Enter a password 6+ chars long' : null,
+                      onChanged: (val) {
+                        setState( () => password = val);
+                      },
                     ),
                     SizedBox(height: 30.0),
                     TextFormField(
@@ -73,7 +82,7 @@ class _SignUpState extends State<SignUp> {
                           print("No user, user error");
                         }
                         else {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => SelectAllergies(uid: result.uid)));
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => SelectAllergies(user: result)));
                         }
                       },
                       child: Text("Next"),

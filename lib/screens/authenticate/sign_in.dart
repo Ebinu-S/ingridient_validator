@@ -20,6 +20,7 @@ class _SignInState extends State<SignIn> {
 
   String email = '';
   String password = '';
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -62,8 +63,20 @@ class _SignInState extends State<SignIn> {
                     ),
                     SizedBox(height: 30.0),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
+                      onPressed: () async {
+                        setState(() {
+                          loading = true;
+                        });
+                        dynamic result = await _auth.SignInWithEmailAndPassword(email, password);
+                        if(result == null) {
+                          setState(() {
+                            loading = false;
+                          });
+                          print("No user, user error");
+                        }
+                        else {
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => Home()));
+                        }
                       },
                       child: Text("Sign In"),
                     )
@@ -93,6 +106,7 @@ class _SignInState extends State<SignIn> {
                     padding: const EdgeInsets.symmetric(horizontal: 30.0)
                 ),
               ),
+              if (loading) Text("Loading..."),
             ],
           ),
         ),

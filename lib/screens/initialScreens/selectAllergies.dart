@@ -4,10 +4,12 @@ import 'package:project_ing_validator/services/auth.dart';
 import 'package:project_ing_validator/db/allergens.dart';
 import 'package:project_ing_validator/models/allergy.dart';
 import 'package:project_ing_validator/screens/home/home.dart';
+import 'package:project_ing_validator/services/firebaseDB.dart';
+import 'package:project_ing_validator/screens/shared/loading.dart';
 
 class SelectAllergies extends StatefulWidget {
-  final String uid;
-  SelectAllergies({required this.uid});
+  final dynamic user;
+  SelectAllergies({required this.user});
 
   @override
   State<SelectAllergies> createState() => _SelectAllergiesState();
@@ -16,6 +18,8 @@ class SelectAllergies extends StatefulWidget {
 class _SelectAllergiesState extends State<SelectAllergies> {
 
   final AuthService _auth = AuthService();
+
+  final databaseService db = databaseService();
 
   bool loading = false;
 
@@ -60,9 +64,17 @@ class _SelectAllergiesState extends State<SelectAllergies> {
               },
             ),
             ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   print(selectedAllergy[0].name);
-                  print(widget.uid);
+                  print(widget.user.uid);
+                  setState(() {
+                    loading = true;
+                  });
+                  await databaseService().addAllergiesOfUser(selectedAllergy, widget.user);
+                  print("succesfully updated,user");
+                  setState(() {
+                    loading = false;
+                  });
                   // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
                 },
                 child: Text("Finish")

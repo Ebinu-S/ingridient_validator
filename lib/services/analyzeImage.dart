@@ -79,9 +79,7 @@ Future<List> getRecognizedText(File? image) async {
   await textDetector.close();
 
   for( TextBlock block in recognizedText.blocks) {
-    for( TextLine line in block.lines) {
-      scannedText.add(line.text);
-    }
+    scannedText.add(block.text);
   }
   return scannedText;
 }

@@ -1,12 +1,8 @@
 class AppUser {
 
   final String? uid;
-  var allergies = [];
+  final String? email;
 
-  AppUser({ this.uid  });
-
-  addAllergies(List input){
-    allergies = input;
-  }
+  AppUser({ this.uid , this.email});
 
 }
