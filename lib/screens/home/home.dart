@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:developer'; // delete on production
 
 import 'package:project_ing_validator/screens/settings/settings.dart';
+import 'package:project_ing_validator/screens/shared/loading.dart';
 import 'package:project_ing_validator/services/analyzeImage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,8 +23,8 @@ class _HomeState extends State<Home> {
   final AuthService _auth = AuthService();
 
   bool textScanning = false;
-  File? imageFile;
   String scannedText = "";
+  File? imageFile;
 
   @override
   Widget build(BuildContext context) {

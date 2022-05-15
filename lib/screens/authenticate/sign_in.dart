@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sn_progress_dialog/sn_progress_dialog.dart';
 import 'package:project_ing_validator/services/auth.dart';
 import 'package:project_ing_validator/screens/home/home.dart';
 
@@ -24,6 +25,8 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
+    ProgressDialog pd = ProgressDialog(context: context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Sign In"),
@@ -64,17 +67,23 @@ class _SignInState extends State<SignIn> {
                     SizedBox(height: 30.0),
                     ElevatedButton(
                       onPressed: () async {
-                        setState(() {
-                          loading = true;
-                        });
+                        pd.show(
+                          max:10,
+                          msg: "Loading..",
+                          progressValueColor: Colors.deepPurple,
+                          barrierColor: Colors.black12.withOpacity(0.5)
+                        );
                         dynamic result = await _auth.SignInWithEmailAndPassword(email, password);
+                        setState(() {
+                          loading = false;
+                        });
                         if(result == null) {
-                          setState(() {
-                            loading = false;
-                          });
                           print("No user, user error");
+                          pd.close();
                         }
+
                         else {
+                          pd.close();
                           Navigator.of(context).push(MaterialPageRoute(builder: (context) => Home()));
                         }
                       },
@@ -106,7 +115,6 @@ class _SignInState extends State<SignIn> {
                     padding: const EdgeInsets.symmetric(horizontal: 30.0)
                 ),
               ),
-              if (loading) Text("Loading..."),
             ],
           ),
         ),

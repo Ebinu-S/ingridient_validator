@@ -5,6 +5,18 @@ class databaseService {
 
   final db = FirebaseFirestore.instance;
 
+  Future<void> initialiseUser(String username, dynamic user) async {
+    try{
+      await db.collection("users").doc(user.uid).set({
+        "username": username
+      });
+    }
+    catch (error) {
+      print("error");
+      print(error.toString());
+    }
+  }
+
   Future<void> addAllergiesOfUser(List<AllergyModal> allergies, dynamic user, dynamic username) async {
     print("inside the add function");
     // final CollectionReference userCollection = FirebaseFirestore.instance.collection("users");
@@ -17,9 +29,7 @@ class databaseService {
     });
 
     try{
-      await db.collection("users").doc(user.uid).set({
-        "email" : user.email,
-        "username" : username,
+      await db.collection("users").doc(user.uid).update({
         "allergies" : onlyAllergyNames
       });
       print("after the collection");

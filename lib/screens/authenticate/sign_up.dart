@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:project_ing_validator/services/auth.dart';
 import 'package:project_ing_validator/screens/initialScreens/selectAllergies.dart';
+import 'package:project_ing_validator/services/firebaseDB.dart';
+import 'package:sn_progress_dialog/sn_progress_dialog.dart';
 
 class SignUp extends StatefulWidget {
   final Function toggleView;
@@ -13,6 +15,7 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
 
   final AuthService _auth = AuthService();
+  final databaseService _db = databaseService();
   final _formKey = GlobalKey<FormState>();
 
   bool loading = false;
@@ -22,6 +25,8 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
+    ProgressDialog pd = ProgressDialog(context: context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Sign Up"),
@@ -70,17 +75,20 @@ class _SignUpState extends State<SignUp> {
                     SizedBox(height: 30.0),
                     ElevatedButton(
                       onPressed: () async {
-                        setState(() {
-                          loading = true;
-                        });
+                        pd.show(
+                            max:10,
+                            msg: "Loading..",
+                            progressValueColor: Colors.deepPurple,
+                            barrierColor: Colors.black12.withOpacity(0.5)
+                        );
                         dynamic result = await _auth.SignUpWithEmailAndPassword(email, password);
                         if(result == null) {
-                          setState(() {
-                            loading = false;
-                          });
+                          pd.close();
                           print("No user, user error");
                         }
                         else {
+                          await _db.initialiseUser(username, result);
+                          pd.close();
                           Navigator.of(context).push(MaterialPageRoute(builder: (context) => SelectAllergies(user: result, username: username)));
                         }
                       },

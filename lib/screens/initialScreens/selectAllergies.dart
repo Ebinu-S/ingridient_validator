@@ -6,6 +6,7 @@ import 'package:project_ing_validator/models/allergy.dart';
 import 'package:project_ing_validator/screens/home/home.dart';
 import 'package:project_ing_validator/services/firebaseDB.dart';
 import 'package:project_ing_validator/screens/shared/loading.dart';
+import 'package:sn_progress_dialog/sn_progress_dialog.dart';
 
 class SelectAllergies extends StatefulWidget {
   final dynamic user, username;
@@ -38,6 +39,8 @@ class _SelectAllergiesState extends State<SelectAllergies> {
 
   @override
   Widget build(BuildContext context) {
+    ProgressDialog pd = ProgressDialog(context: context);
+    
     return Scaffold(
       appBar: AppBar(
         title: Text("Select allergies"),
@@ -65,16 +68,16 @@ class _SelectAllergiesState extends State<SelectAllergies> {
             ),
             ElevatedButton(
                 onPressed: () async {
-                  print(selectedAllergy[0].name);
-                  print(widget.user.uid);
-                  setState(() {
-                    loading = true;
-                  });
+                  pd.show(
+                      max:10,
+                      msg: 'finalizing please wait....',
+                      progressValueColor: Colors.deepPurple,
+                      barrierColor: Colors.black12.withOpacity(0.5)
+                  );
+
                   await databaseService().addAllergiesOfUser(selectedAllergy, widget.user, widget.username);
                   print("succesfully updated,user");
-                  setState(() {
-                    loading = false;
-                  });
+                  pd.close();
                   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
                 },
                 child: Text("Finish")
