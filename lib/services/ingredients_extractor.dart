@@ -5,16 +5,16 @@ class IngredientExtractor {
 
   List<String> extractTheIngredients(List blocks) {
 
-    List<String> result = [];
-    bool nextHasIngredients = false; //sets true if the ingredients are on next block
+      List<String> result = [];
+      bool nextHasIngredients = false; //sets true if the ingredients are on next block
 
-    for (String element in blocks) {
+      for (String element in blocks) {
 
-      if(nextHasIngredients) {
-        List<String> temp = element.split(',');
-        result = temp;
-        break;
-      }
+        if(nextHasIngredients) {
+          List<String> temp = element.split(',');
+          result = temp;
+          break;
+        }
 
       // check if the block contains word INGREDIENT[s]
       if(element.contains("INGREDIENTS") || element.contains("INGREDIENT")) {

@@ -8,7 +8,8 @@ import 'package:project_ing_validator/models/user.dart';
 
 
 class Settings extends StatefulWidget {
-  const Settings({Key? key}) : super(key: key);
+  AppUser? user;
+  Settings({this.user});
 
   @override
   State<Settings> createState() => _SettingsState();
@@ -32,7 +33,7 @@ class _SettingsState extends State<Settings> {
           ElevatedButton.icon(
               onPressed: () async{
                 // await _auth.signOut();
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home(user: widget.user)));
               },
               icon: Icon(Icons.home),
               label: Text(""),
@@ -48,21 +49,30 @@ class _SettingsState extends State<Settings> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.max,
           children: [
-            ElevatedButton.icon(
-                onPressed: () async{
-                  await _auth.signOut();
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Authenticate()));
-                },
-                icon: Icon(Icons.person),
-                label: Text("LogOut"),
+            Text(
+              "User Settings",
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
+              ),
             ),
+            SizedBox(height: 20,),
             ElevatedButton.icon(
               onPressed: () async{
                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => SelectAllergies(user: user)));
               },
               icon: Icon(Icons.list),
-              label: Text("Select Allergies"),
+              label: Text("Update Allergies"),
+            ),
+            ElevatedButton.icon(
+              onPressed: () async{
+                await _auth.signOut();
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Authenticate()));
+              },
+              icon: Icon(Icons.person),
+              label: Text("LogOut"),
             ),
           ],
         ),

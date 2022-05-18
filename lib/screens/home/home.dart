@@ -2,17 +2,21 @@ import 'dart:io';
 
 import 'dart:developer'; // delete on production
 
+import 'package:project_ing_validator/models/user.dart';
 import 'package:project_ing_validator/screens/settings/settings.dart';
 import 'package:project_ing_validator/screens/shared/loading.dart';
+import 'package:project_ing_validator/services/allergyFinder.dart';
 import 'package:project_ing_validator/services/analyzeImage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project_ing_validator/services/auth.dart';
 import 'package:project_ing_validator/screens/authenticate/authenticate.dart';
+import 'package:project_ing_validator/services/firebaseDB.dart';
 import 'package:project_ing_validator/services/ingredients_extractor.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  AppUser? user;
+  Home({this.user});
 
   @override
   State<Home> createState() => _HomeState();
@@ -21,13 +25,29 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
 
   final AuthService _auth = AuthService();
+  final databaseService db = databaseService();
 
   bool textScanning = false;
   String scannedText = "";
+  String foundAllergens = "";
+  String allIngredients = "";
   File? imageFile;
 
   @override
   Widget build(BuildContext context) {
+
+
+    print("usernameusername");
+    dynamic udata;
+    getUserData () async {
+      // udata = await db.getData(widget.user);
+      print('dtats');
+    }
+    if(udata == null ) {
+      getUserData();
+    }
+    print(udata);
+
     return Scaffold(
       backgroundColor: Color(0xffF3F1F8),
       appBar: AppBar(
@@ -38,7 +58,7 @@ class _HomeState extends State<Home> {
           ElevatedButton.icon(
               onPressed: () async{
                 // await _auth.signOut();
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Settings()));
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Settings(user: widget.user)));
               },
               icon: Icon(Icons.settings),
               label: Text(""),
@@ -53,12 +73,15 @@ class _HomeState extends State<Home> {
             margin: EdgeInsets.all(20.0),
             child: Column(
               children: [
+                // Text(
+                //     "Welcome, ${udata == Null ? udata.username + ",": "Guest,"}"
+                // ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly ,
                   children: [
                     ElevatedButton(
                         onPressed: () {
-                          getImage(ImageSource.camera);
+                          getImage(ImageSource.camera, udata);
                         },
                         style: ElevatedButton.styleFrom(
                           minimumSize: Size(100,60),
@@ -82,7 +105,7 @@ class _HomeState extends State<Home> {
                         )
                     ),
                     ElevatedButton(
-                        onPressed: () => getImage(ImageSource.gallery),
+                        onPressed: () => getImage(ImageSource.gallery, udata),
                         style: ElevatedButton.styleFrom(
                           minimumSize: Size(100,60),
                           primary: Color(0xffffffff),
@@ -165,6 +188,21 @@ class _HomeState extends State<Home> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      SizedBox(height: 25),
+                      Text(
+                        foundAllergens != "" ? foundAllergens : "" ,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),),
+                      SizedBox(height: 25),
+                      Text(
+                        allIngredients != "" ? allIngredients : "" ,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.normal,
                         ),),
                     ],
                   ),
@@ -176,28 +214,35 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void getImage(ImageSource source) async {
-
-    final IngredientExtractor ingExtractor = IngredientExtractor();
+  void getImage(ImageSource source, dynamic udata) async {
 
     textScanning = true;
     scannedText = "";
+    foundAllergens = "";
+    allIngredients = "";
+    imageFile = null;
 
-    await PickImage(source).then((res)
+    await PickImage(source, widget.user).then((res)
     {
       if(res['success'] == true) {
-        List<String> result = ingExtractor.extractTheIngredients(res['message']);
-
-        result.asMap().forEach((index,element, ) {
-          scannedText += "${index+1}: " + element + "\n\n";
+        imageFile = res['image'];
+        scannedText = res['allergensFound'].length > 0 ? "Allergens found. DONT EAT\n" : "No allergens found";
+        // foundAllergens = res['allergensFound'];
+        res['allergensFound'].forEach( (element) {
+          foundAllergens += element + ", ";
+        });
+        res['ingredients'].forEach( (element) {
+          allIngredients += element['name'] + ", ";
         });
 
-        imageFile = res['image'];
-        textScanning = false;
-        setState(() {});
+        // print("all allregerns");
+        // print(res['ingredients']);
+        textScanning =false;
+        setState(() { });
       }
       else {
         print("Error");
+        scannedText = "Something went wrong please try again later";
       }
     }
     );

@@ -4,10 +4,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:project_ing_validator/services/allergyFinder.dart';
+import 'package:project_ing_validator/services/storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:project_ing_validator/services/firebaseDB.dart';
+
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // analyzes and return the text of input image
 
-Future<Map> PickImage(ImageSource source ) async {
+Future<Map> PickImage(ImageSource source, dynamic user) async {
 
   var result = {};
 
@@ -17,11 +24,11 @@ Future<Map> PickImage(ImageSource source ) async {
     final pickedImage = await _picker.pickImage(source: source);
     if(pickedImage != null) {
       File image = File(pickedImage.path);
-      await cropImage(image.path).then((value) {
-
+      await cropImage(image.path, user).then((value) {
         result = {
           'success' : true,
-          'message' : value!['text'],
+          'ingredients' : value!['ingredients'],
+          'allergensFound' : value['allergensFound'],
           'image' : value['image'],
         };
       });
@@ -51,7 +58,8 @@ Future<Map> PickImage(ImageSource source ) async {
 
 }
 
-Future<Map?> cropImage(filePath) async {
+Future<Map?> cropImage(filePath, dynamic user) async {
+StorageService storage = StorageService();
 
   File imageFile;
 
@@ -60,13 +68,59 @@ Future<Map?> cropImage(filePath) async {
   );
 
   if(croppedImage != null) {
+    String url = await storage.uploadImageAndGetUrl(croppedImage);
+    Map data = await getIngredientsFromImage(url, user);
     imageFile = croppedImage;
-    List text = await getRecognizedText(croppedImage);
+
+    // *********old***************
+    // List text = await getRecognizedText(croppedImage);
+    // *********old***************
+
     return {
-      'text': text ,
+      'allergensFound': data["allergensFound"],
+      'ingredients' : data["Ingredients"],
       'image' : imageFile
-      };
+    };
   }
+}
+
+Future<Map> getIngredientsFromImage(String firebaseImageurl, dynamic user) async {
+
+  Map result = {};
+  final databaseService db = databaseService();
+  final AllergyFinder af = AllergyFinder();
+
+  dynamic udata = await db.getData(user);
+
+  try{
+    print("in the try");
+    var url = Uri.parse("https://ing-validator-backend.herokuapp.com/api");
+    var body =  {
+      "url":firebaseImageurl,
+      "userAllergies": jsonEncode(udata['allergies'])
+    };
+    print(body);
+    print("before response");
+    var data;
+    var response = await http.post(url, body: body);
+    print("response from backend");
+    if (response.body.isNotEmpty) {
+      data = json.decode(response.body);
+      Map result = af.findAllergens(data, udata);
+      return result;
+    }
+    print(data);
+  }
+  catch (error) {
+    print("error from api connection");
+    print(error);
+    result = {
+      "error": true
+    };
+  }
+
+
+  return result;
 }
 
 Future<List> getRecognizedText(File? image) async {

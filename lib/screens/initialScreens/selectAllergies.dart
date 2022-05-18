@@ -25,14 +25,15 @@ class _SelectAllergiesState extends State<SelectAllergies> {
   bool loading = false;
 
   List<AllergyModal> allergy = [
-    AllergyModal('Milk', false),
-    AllergyModal('Egg', false),
-    AllergyModal('Nuts', false),
-    AllergyModal('Peanuts', false),
-    AllergyModal('Shellfish', false),
-    AllergyModal('Wheat', false),
-    AllergyModal('Soy', false),
-    AllergyModal('Fish', false),
+    AllergyModal('dairy', false),
+    AllergyModal('eggs', false),
+    AllergyModal('peanuts', false),
+    AllergyModal('treenuts', false),
+    AllergyModal('shellfish', false),
+    AllergyModal('wheat', false),
+    AllergyModal('soy', false),
+    AllergyModal('fish', false),
+    AllergyModal('corn', false),
   ];
 
   List<AllergyModal> selectedAllergy = [];
@@ -78,7 +79,7 @@ class _SelectAllergiesState extends State<SelectAllergies> {
                   await databaseService().addAllergiesOfUser(selectedAllergy, widget.user, widget.username);
                   print("succesfully updated,user");
                   pd.close();
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home(user: widget.user,)));
                 },
                 child: Text("Finish")
             )
