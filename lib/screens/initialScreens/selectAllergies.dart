@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:project_ing_validator/services/auth.dart';
-import 'package:project_ing_validator/db/allergens.dart';
+// import 'package:project_ing_validator/db/allergens.dart';
 import 'package:project_ing_validator/models/allergy.dart';
 import 'package:project_ing_validator/screens/home/home.dart';
 import 'package:project_ing_validator/services/firebaseDB.dart';

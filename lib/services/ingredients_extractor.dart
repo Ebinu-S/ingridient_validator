@@ -3,16 +3,23 @@ import 'dart:developer'; // delete on production
 
 class IngredientExtractor {
 
-  List<String> extractTheIngredients(List blocks) {
+  Map extractTheIngredients(List blocks) {
 
-      List<String> result = [];
+      List result = [];
       bool nextHasIngredients = false; //sets true if the ingredients are on next block
 
       for (String element in blocks) {
 
         if(nextHasIngredients) {
+          List ingredients = [];
           List<String> temp = element.split(',');
-          result = temp;
+          for (var element in temp) {
+            ingredients.add({
+              "id": "null",
+              "name": element,
+            });
+          }
+          result = ingredients;
           break;
         }
 
@@ -20,8 +27,15 @@ class IngredientExtractor {
       if(element.contains("INGREDIENTS") || element.contains("INGREDIENT")) {
         // validate if ingredients are in this block or next
         if(element.length > 12 ){
+          List ingredients = [];
           List<String> temp = element.substring(13).split(',');
-          result = temp;
+          for (var element in temp) {
+            ingredients.add({
+              "id": "null",
+              "name": element,
+            });
+          }
+          result = ingredients;
           break;
         }
         else {
@@ -30,6 +44,16 @@ class IngredientExtractor {
       }
     }
 
-    return result;
+    if(result == []) {
+      return{
+        "concepts": result,
+        "error": true
+      };
+    }
+
+    return {
+      "concepts": result,
+      "error": false
+    };
   }
 }

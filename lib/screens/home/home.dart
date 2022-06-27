@@ -1,18 +1,13 @@
 import 'dart:io';
-
 import 'dart:developer'; // delete on production
-
 import 'package:project_ing_validator/models/user.dart';
 import 'package:project_ing_validator/screens/settings/settings.dart';
-import 'package:project_ing_validator/screens/shared/loading.dart';
-import 'package:project_ing_validator/services/allergyFinder.dart';
 import 'package:project_ing_validator/services/analyzeImage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project_ing_validator/services/auth.dart';
-import 'package:project_ing_validator/screens/authenticate/authenticate.dart';
 import 'package:project_ing_validator/services/firebaseDB.dart';
-import 'package:project_ing_validator/services/ingredients_extractor.dart';
+import 'package:sn_progress_dialog/sn_progress_dialog.dart';
 
 class Home extends StatefulWidget {
   AppUser? user;
@@ -32,10 +27,13 @@ class _HomeState extends State<Home> {
   String foundAllergens = "";
   String allIngredients = "";
   File? imageFile;
+  bool safetoeat = true;
+  bool error = false;
 
   @override
   Widget build(BuildContext context) {
 
+    ProgressDialog pd = ProgressDialog(context: context);
 
     print("usernameusername");
     dynamic udata;
@@ -73,60 +71,184 @@ class _HomeState extends State<Home> {
             margin: EdgeInsets.all(20.0),
             child: Column(
               children: [
-                // Text(
-                //     "Welcome, ${udata == Null ? udata.username + ",": "Guest,"}"
-                // ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly ,
-                  children: [
-                    ElevatedButton(
-                        onPressed: () {
-                          getImage(ImageSource.camera, udata);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(100,60),
-                          primary: Color(0xffffffff),
-                        ),
-                        child: Center(
-                          child: Column(
-                            children: [
-                              Icon(
-                                  Icons.camera,
-                                  color: Color(0xff312F2F)
+                SizedBox(height: 10.0,),
+                Container(
+                  width: 500,
+                  height: 260,
+                  padding: EdgeInsets.all(20.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    color: Color(0xffffffff),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Scan food",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10.0,),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly ,
+                        children: [
+                          ElevatedButton(
+                              onPressed: () async {
+                                pd.show(
+                                    max:10,
+                                    msg: "Analyzing..",
+                                    progressValueColor: Colors.deepPurple,
+                                    barrierColor: Colors.black12.withOpacity(0.5)
+                                );
+                                await getImage(ImageSource.camera, udata, false);
+                                pd.close();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: Size(100,60),
+                                primary: Color(0xffffffff),
                               ),
-                              Text(
-                                "Camera",
-                                style: TextStyle(
-                                    color: Color(0xff312F2F)
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                        Icons.camera,
+                                        color: Color(0xff312F2F)
+                                    ),
+                                    Text(
+                                      "Camera",
+                                      style: TextStyle(
+                                          color: Color(0xff312F2F)
+                                      ),
+                                    )
+                                  ],
                                 ),
                               )
-                            ],
                           ),
-                        )
-                    ),
-                    ElevatedButton(
-                        onPressed: () => getImage(ImageSource.gallery, udata),
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(100,60),
-                          primary: Color(0xffffffff),
-                        ),
-                        child: Center(
-                          child: Column(
-                            children: [
-                              Icon(
-                                  Icons.image,
-                                  color: Color(0xff312F2F)
+                          ElevatedButton(
+                              onPressed: () async {
+                                pd.show(
+                                    max:10,
+                                    msg: "Analyzing..",
+                                    progressValueColor: Colors.deepPurple,
+                                    barrierColor: Colors.black12.withOpacity(0.5)
+                                );
+                                await getImage(ImageSource.gallery, udata, false);
+                                pd.close();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: Size(100,60),
+                                primary: Color(0xffffffff),
                               ),
-                              Text(
-                                "Gallery",
-                                style: TextStyle(
-                                    color: Color(0xff312F2F)
-                                ),)
-                            ],
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                        Icons.image,
+                                        color: Color(0xff312F2F)
+                                    ),
+                                    Text(
+                                      "Gallery",
+                                      style: TextStyle(
+                                          color: Color(0xff312F2F)
+                                      ),)
+                                  ],
+                                ),
+                              )
                           ),
-                        )
-                    ),
-                  ],
+                        ],
+                      ),
+                      SizedBox(
+                        height: 30.0,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Scan Ingridient's",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10.0,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly ,
+                        children: [
+                          ElevatedButton(
+                              onPressed: () async {
+                                pd.show(
+                                    max:10,
+                                    msg: "Analyzing..",
+                                    progressValueColor: Colors.deepPurple,
+                                    barrierColor: Colors.black12.withOpacity(0.5)
+                                );
+                                await getImage(ImageSource.camera, udata, true);
+                                pd.close();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: Size(100,60),
+                                primary: Color(0xffffffff),
+                              ),
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                        Icons.camera,
+                                        color: Color(0xff312F2F)
+                                    ),
+                                    Text(
+                                      "Camera",
+                                      style: TextStyle(
+                                          color: Color(0xff312F2F)
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              )
+                          ),
+                          ElevatedButton(
+                              onPressed: () async {
+                                pd.show(
+                                    max:10,
+                                    msg: "Analyzing..",
+                                    progressValueColor: Colors.deepPurple,
+                                    barrierColor: Colors.black12.withOpacity(0.5)
+                                );
+                                await getImage(ImageSource.gallery, udata, true);
+                                pd.close();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: Size(100,60),
+                                primary: Color(0xffffffff),
+                              ),
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                        Icons.image,
+                                        color: Color(0xff312F2F)
+                                    ),
+                                    Text(
+                                      "Gallery",
+                                      style: TextStyle(
+                                          color: Color(0xff312F2F)
+                                      ),)
+                                  ],
+                                ),
+                              )
+                          ),
+                        ],
+                      ),
+                    ]
+                  ),
                 ),
                 SizedBox(height: 20.0), // start of image preview
                 Container(
@@ -177,20 +299,37 @@ class _HomeState extends State<Home> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Ingredients:",
+                        "Result:",
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),),
                       SizedBox(height: 25),
-                      Text(
-                        scannedText != "" ? scannedText : "Scan image to display ingridients." ,
+                      if(error == true ) Text(
+                        scannedText,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 23,
+                          color: Colors.redAccent,
                           fontWeight: FontWeight.normal,
                         ),
                       ),
                       SizedBox(height: 25),
+                      if(error == false) Text(
+                        scannedText != "" ? scannedText : "Scan image to display ingredients." ,
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: safetoeat ? Colors.lightGreen : Colors.redAccent,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      SizedBox(height: 05),
+                      if(foundAllergens != "") Text(
+                        "Allergens present:" ,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.normal,
+                        ),),
+                      SizedBox(height: 05),
                       Text(
                         foundAllergens != "" ? foundAllergens : "" ,
                         style: TextStyle(
@@ -198,6 +337,13 @@ class _HomeState extends State<Home> {
                           fontWeight: FontWeight.bold,
                         ),),
                       SizedBox(height: 25),
+                      if(allIngredients != "") Text(
+                        "All ingredients:" ,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.normal,
+                        ),),
+                      SizedBox(height: 15),
                       Text(
                         allIngredients != "" ? allIngredients : "" ,
                         style: TextStyle(
@@ -214,7 +360,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void getImage(ImageSource source, dynamic udata) async {
+  Future<void> getImage(ImageSource source, dynamic udata, bool isText) async {
 
     textScanning = true;
     scannedText = "";
@@ -222,29 +368,50 @@ class _HomeState extends State<Home> {
     allIngredients = "";
     imageFile = null;
 
-    await PickImage(source, widget.user).then((res)
-    {
-      if(res['success'] == true) {
-        imageFile = res['image'];
-        scannedText = res['allergensFound'].length > 0 ? "Allergens found. DONT EAT\n" : "No allergens found";
-        // foundAllergens = res['allergensFound'];
-        res['allergensFound'].forEach( (element) {
-          foundAllergens += element + ", ";
-        });
-        res['ingredients'].forEach( (element) {
-          allIngredients += element['name'] + ", ";
-        });
+    try{
+      await PickImage(source, widget.user, isText).then((res)
+      {
+        print("res");
+        print(res);
+        if(res['success'] == true) {
+          imageFile = res['image'];
+          safetoeat = res['allergensFound']!.length > 0 ? false : true;
+          scannedText = safetoeat ? "No allergens found\n" : "Allergens found. DONT EAT\n";
+          // foundAllergens = res['allergensFound'];
 
-        // print("all allregerns");
-        // print(res['ingredients']);
-        textScanning =false;
-        setState(() { });
+          if(res['allergensFound'] != null) {
+            res['allergensFound'].forEach( (element) {
+              foundAllergens += element + ", ";
+            });
+          }
+
+          if(res['ingredients'] != null) {
+            res['ingredients'].forEach( (element) {
+              allIngredients += element['name'] + ", ";
+            });
+          }
+
+          textScanning =false;
+          setState(() { });
+        }
+        else {
+          textScanning =false;
+          error = true;
+          imageFile = null;
+          print("Error");
+          scannedText = "Something went wrong please try again later";
+          setState(() { });
+        }
       }
-      else {
-        print("Error");
-        scannedText = "Something went wrong please try again later";
-      }
+      );
     }
-    );
+    catch (error) {
+      textScanning =false;
+      print("Error");
+      print(error);
+      scannedText = "Something went wrong please try again later";
+      setState(() { });
+    }
+
   }
 }

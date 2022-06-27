@@ -7,14 +7,11 @@ class AuthService {
   // used to interact with firebase auth
 
   AppUser? _userFromFirebaseUser(User? user) {
-    print("user form auth");
-    print(user);
     return user != null ? AppUser(uid: user.uid, email: user.email) : null;
   }
 
   // auth change user stream
   Stream<AppUser?> get user {
-    print("insosossxoxoxoxoxoxoxoxoxoxoxxoxoxoxo");
     return _auth.authStateChanges().map(_userFromFirebaseUser);
   }
 
@@ -40,8 +37,12 @@ class AuthService {
       return _userFromFirebaseUser(user);
     }
     catch (error) {
-      print(error.toString());
-      return null;
+      print("this is an error");
+      dynamic result = {
+        "error" : true,
+        "message" : error.toString()
+      };
+      return result;
     }
   }
 
@@ -53,8 +54,12 @@ class AuthService {
       return _userFromFirebaseUser(user);
     }
     catch (error) {
+      dynamic result = {
+        "error" : true,
+        "message" : error.toString()
+      };
       print(error.toString());
-      return null;
+      return result;
     }
   }
 

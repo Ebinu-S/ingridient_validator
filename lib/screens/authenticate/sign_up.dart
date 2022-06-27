@@ -4,6 +4,8 @@ import 'package:project_ing_validator/screens/initialScreens/selectAllergies.dar
 import 'package:project_ing_validator/services/firebaseDB.dart';
 import 'package:sn_progress_dialog/sn_progress_dialog.dart';
 
+import '../../models/user.dart';
+
 class SignUp extends StatefulWidget {
   final Function toggleView;
   const SignUp({required this.toggleView});
@@ -22,6 +24,8 @@ class _SignUpState extends State<SignUp> {
   String email = '';
   String password = '';
   String username = '';
+
+  String validationErrorText = "";
 
   @override
   Widget build(BuildContext context) {
@@ -74,25 +78,43 @@ class _SignUpState extends State<SignUp> {
                         },
                       ),
                       SizedBox(height: 30.0),
+                      if(validationErrorText != "" ) Text(
+                        validationErrorText,
+                        style: TextStyle(
+                            color: Colors.redAccent
+                        ),
+                      ),
+                      SizedBox(height: 30.0),
                       ElevatedButton(
                         onPressed: () async {
-                          pd.show(
-                              max:10,
-                              msg: "Loading..",
-                              progressValueColor: Colors.deepPurple,
-                              barrierColor: Colors.black12.withOpacity(0.5)
-                          );
-                          dynamic result = await _auth.SignUpWithEmailAndPassword(email, password);
-                          if(result == null) {
-                            pd.close();
-                            print("No user, user error");
-                          }
-                          else {
-                            await _db.initialiseUser(username, result);
-                            pd.close();
-                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => SelectAllergies(user: result, username: username)));
+                          if(_formKey.currentState!.validate()) {
+                            pd.show(
+                                max: 10,
+                                msg: "Loading..",
+                                progressValueColor: Colors.deepPurple,
+                                barrierColor: Colors.black12.withOpacity(0.5)
+                            );
+                            dynamic result = await _auth
+                                .SignUpWithEmailAndPassword(email, password);
+                            if(result is AppUser) {
+                              await _db.initialiseUser(username, result);
+                              pd.close();
+                              setState(() {
+
+                              });
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      SelectAllergies(
+                                          user: result, username: username)));
+                            }else {
+                              validationErrorText = result['message'].substring(30);
+                              pd.close();
+                              print("No user, user error");
+                            }
+
                           }
                         },
+
                         child: Text("Next"),
                       )
                     ],
@@ -109,7 +131,7 @@ class _SignUpState extends State<SignUp> {
                       children: [
                         Icon(Icons.login),
                         SizedBox(width: 10,),
-                        Text("Already have an account"),
+                        Text("Already have an account?"),
                       ],
                     ),
                   ),

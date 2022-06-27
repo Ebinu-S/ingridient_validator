@@ -12,6 +12,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   // await dotenv.load(fileName: ".env");
+
   runApp(StreamProvider<AppUser?>.value(
     updateShouldNotify: (__,_) => true,
     value: AuthService().user,
@@ -25,8 +26,6 @@ void main() async {
     ),
   ));
 }
-
-
 
 
 

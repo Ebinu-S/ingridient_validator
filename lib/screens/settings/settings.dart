@@ -5,7 +5,8 @@ import 'package:project_ing_validator/services/auth.dart';
 import 'package:project_ing_validator/screens/authenticate/authenticate.dart';
 import 'package:provider/provider.dart';
 import 'package:project_ing_validator/models/user.dart';
-
+import 'package:project_ing_validator/services/firebaseDB.dart';
+import 'package:sn_progress_dialog/sn_progress_dialog.dart';
 
 class Settings extends StatefulWidget {
   AppUser? user;
@@ -18,10 +19,23 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
 
   final AuthService _auth = AuthService();
+  final databaseService db = databaseService();
 
   @override
   Widget build(BuildContext context) {
+    ProgressDialog pd = ProgressDialog(context: context);
     final user = Provider.of<AppUser?>(context);
+    String myAllegies = "";
+    dynamic udata;
+    getData() async {
+      if(myAllegies == "") {
+        udata = await db.getData(user);
+        for(var element in udata['allergies']){
+          myAllegies += " $element,";
+        }
+      }
+    }
+    getData();
 
     return Scaffold(
       backgroundColor: Color(0xffF3F1F8),
@@ -59,6 +73,35 @@ class _SettingsState extends State<Settings> {
               ),
             ),
             SizedBox(height: 20,),
+            Text(myAllegies),
+            ElevatedButton.icon(
+              onPressed: () async{
+              showModalBottomSheet<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return SizedBox(
+                    height: 200,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            "My Allergies",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold
+                            ),
+                          ),
+                          SizedBox(height: 10.0,),
+                          Text(myAllegies),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+              );},
+              icon: Icon(Icons.list),
+              label: Text("Selected Allergies"),
+            ),
             ElevatedButton.icon(
               onPressed: () async{
                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => SelectAllergies(user: user)));
