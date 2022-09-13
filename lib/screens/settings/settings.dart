@@ -99,7 +99,7 @@ class _SettingsState extends State<Settings> {
                     );
                   },
               );},
-              icon: Icon(Icons.list),
+              icon: Icon(Icons.check),
               label: Text("Selected Allergies"),
             ),
             ElevatedButton.icon(

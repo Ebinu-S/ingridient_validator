@@ -35,7 +35,6 @@ class _HomeState extends State<Home> {
 
     ProgressDialog pd = ProgressDialog(context: context);
 
-    print("usernameusername");
     dynamic udata;
     getUserData () async {
       // udata = await db.getData(widget.user);
@@ -74,7 +73,7 @@ class _HomeState extends State<Home> {
                 SizedBox(height: 10.0,),
                 Container(
                   width: 500,
-                  height: 260,
+                  height: 140,
                   padding: EdgeInsets.all(20.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(10.0)),
@@ -95,7 +94,6 @@ class _HomeState extends State<Home> {
                       ),
                       SizedBox(
                         height: 10.0,),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly ,
                         children: [
@@ -107,7 +105,7 @@ class _HomeState extends State<Home> {
                                     progressValueColor: Colors.deepPurple,
                                     barrierColor: Colors.black12.withOpacity(0.5)
                                 );
-                                await getImage(ImageSource.camera, udata, false);
+                                await getImage(ImageSource.camera, udata);
                                 pd.close();
                               },
                               style: ElevatedButton.styleFrom(
@@ -139,90 +137,7 @@ class _HomeState extends State<Home> {
                                     progressValueColor: Colors.deepPurple,
                                     barrierColor: Colors.black12.withOpacity(0.5)
                                 );
-                                await getImage(ImageSource.gallery, udata, false);
-                                pd.close();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: Size(100,60),
-                                primary: Color(0xffffffff),
-                              ),
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    Icon(
-                                        Icons.image,
-                                        color: Color(0xff312F2F)
-                                    ),
-                                    Text(
-                                      "Gallery",
-                                      style: TextStyle(
-                                          color: Color(0xff312F2F)
-                                      ),)
-                                  ],
-                                ),
-                              )
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 30.0,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Scan Ingridient's",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10.0,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly ,
-                        children: [
-                          ElevatedButton(
-                              onPressed: () async {
-                                pd.show(
-                                    max:10,
-                                    msg: "Analyzing..",
-                                    progressValueColor: Colors.deepPurple,
-                                    barrierColor: Colors.black12.withOpacity(0.5)
-                                );
-                                await getImage(ImageSource.camera, udata, true);
-                                pd.close();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: Size(100,60),
-                                primary: Color(0xffffffff),
-                              ),
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    Icon(
-                                        Icons.camera,
-                                        color: Color(0xff312F2F)
-                                    ),
-                                    Text(
-                                      "Camera",
-                                      style: TextStyle(
-                                          color: Color(0xff312F2F)
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              )
-                          ),
-                          ElevatedButton(
-                              onPressed: () async {
-                                pd.show(
-                                    max:10,
-                                    msg: "Analyzing..",
-                                    progressValueColor: Colors.deepPurple,
-                                    barrierColor: Colors.black12.withOpacity(0.5)
-                                );
-                                await getImage(ImageSource.gallery, udata, true);
+                                await getImage(ImageSource.gallery, udata);
                                 pd.close();
                               },
                               style: ElevatedButton.styleFrom(
@@ -360,7 +275,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Future<void> getImage(ImageSource source, dynamic udata, bool isText) async {
+  Future<void> getImage(ImageSource source, dynamic udata) async {
 
     textScanning = true;
     scannedText = "";
@@ -369,15 +284,12 @@ class _HomeState extends State<Home> {
     imageFile = null;
 
     try{
-      await PickImage(source, widget.user, isText).then((res)
+      await PickImage(source, widget.user).then((res)
       {
-        print("res");
-        print(res);
         if(res['success'] == true) {
           imageFile = res['image'];
           safetoeat = res['allergensFound']!.length > 0 ? false : true;
           scannedText = safetoeat ? "No allergens found\n" : "Allergens found. DONT EAT\n";
-          // foundAllergens = res['allergensFound'];
 
           if(res['allergensFound'] != null) {
             res['allergensFound'].forEach( (element) {
@@ -398,7 +310,6 @@ class _HomeState extends State<Home> {
           textScanning =false;
           error = true;
           imageFile = null;
-          print("Error");
           scannedText = "Something went wrong please try again later";
           setState(() { });
         }

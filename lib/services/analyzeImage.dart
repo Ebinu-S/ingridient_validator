@@ -14,7 +14,7 @@ import 'package:project_ing_validator/services/ingredients_extractor.dart';
 
 // analyzes and return the text of input image
 
-Future<Map> PickImage(ImageSource source, dynamic user,bool isText) async {
+Future<Map> PickImage(ImageSource source, dynamic user) async {
 
   var result = {};
 
@@ -24,7 +24,7 @@ Future<Map> PickImage(ImageSource source, dynamic user,bool isText) async {
     final pickedImage = await _picker.pickImage(source: source);
     if(pickedImage != null) {
       File image = File(pickedImage.path);
-      await cropImage(image.path, user, isText).then((value) {
+      await cropImage(image.path, user).then((value) {
         bool success = value!['error'] == true ? false : true;
         result = {
           'success' : success,
@@ -53,7 +53,7 @@ Future<Map> PickImage(ImageSource source, dynamic user,bool isText) async {
 
 }
 
-Future<Map?> cropImage(filePath, dynamic user, bool isText) async {
+Future<Map?> cropImage(filePath, dynamic user) async {
 StorageService storage = StorageService();
 
   File imageFile;
@@ -63,35 +63,6 @@ StorageService storage = StorageService();
   );
 
   if(croppedImage != null) {
-    if(isText) {
-      // get the allergen's from the text.
-      dynamic scannedTexts = await getRecognizedText(croppedImage);
-      final IngredientExtractor IE = IngredientExtractor();
-      final AllergyFinder af = AllergyFinder();
-      final databaseService db = databaseService();
-      imageFile = croppedImage;
-
-      dynamic udata = await db.getData(user);
-      Map extracted__ingridients = IE.extractTheIngredients(scannedTexts);
-      if(extracted__ingridients == []){
-        // todo return error message
-        return {
-          'allergensFound': [],
-          'ingredients' : [],
-          'image' : imageFile
-        };
-      }
-      else {
-        Map result = af.findAllergens(extracted__ingridients, udata, isText);
-        return {
-          'allergensFound': result["allergensFound"],
-          'ingredients' : result["Ingredients"],
-          'image' : imageFile
-        };
-      }
-
-    }
-    else {
       String url = await storage.uploadImageAndGetUrl(croppedImage);
       Map data = await getIngredientsFromImage(url, user);
       imageFile = croppedImage;
@@ -100,7 +71,6 @@ StorageService storage = StorageService();
         'ingredients' : data["Ingredients"],
         'image' : imageFile
       };
-    }
   }
 }
 
@@ -124,7 +94,7 @@ Future<Map> getIngredientsFromImage(String firebaseImageurl, dynamic user) async
       print("dd");
       print(data);
       data = json.decode(response.body);
-      Map result = af.findAllergens(data, udata, false);
+      Map result = af.findAllergens(data, udata);
       return result;
     }
   }
@@ -138,19 +108,4 @@ Future<Map> getIngredientsFromImage(String firebaseImageurl, dynamic user) async
 
 
   return result;
-}
-
-Future<List> getRecognizedText(File? image) async {
-
-  var scannedText = <String>[];
-
-  final inputImage = InputImage.fromFilePath(image!.path);
-  final textDetector = GoogleMlKit.vision.textRecognizer();
-  RecognizedText recognizedText = await textDetector.processImage(inputImage);
-  await textDetector.close();
-
-  for( TextBlock block in recognizedText.blocks) {
-    scannedText.add(block.text);
-  }
-  return scannedText;
 }

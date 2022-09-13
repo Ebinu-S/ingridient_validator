@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:project_ing_validator/data/allergens.dart';
 
 class AllergyFinder {
-  Map findAllergens(Map allConcepts, dynamic udata, bool isText) {
+  Map findAllergens(Map allConcepts, dynamic udata) {
     var userAllergies = udata['allergies'];
 
     List conceptsList = allConcepts['concepts'];
@@ -14,17 +14,8 @@ class AllergyFinder {
           for (dynamic concepts in conceptsList) {
             List data = allergen['data'].toList();
             for (var d in data) {
-              if(isText){
-                if (concepts['name'].contains(d)) {
-                  print(d);
-                  allergensFound.add(d);
-                }
-              }
-              else {
-                if (d == concepts['name']) {
-                  print(d);
-                  allergensFound.add(d);
-                }
+              if (d == concepts['name']) {
+                allergensFound.add(d);
               }
             }
           }
